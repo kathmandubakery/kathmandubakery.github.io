@@ -87,6 +87,21 @@
     </div>
   </div>
 
+  <!-- PWA Install Banner -->
+  <div id="install-banner">
+    <div class="install-content">
+      <img src="./icon-192.png" alt="App Icon" class="install-icon">
+      <div class="install-text">
+        <h4>Kathmandu Bakery</h4>
+        <p>Install for faster access</p>
+      </div>
+    </div>
+    <div class="install-actions">
+      <button class="btn-install btn-install-later" id="btn-later">Later</button>
+      <button class="btn-install btn-install-now" id="btn-install">Install</button>
+    </div>
+  </div>
+
   <!-- Firebase CDN (Compat - works without a server) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -129,6 +144,53 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(function () { });
     }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+    const btnInstall = document.getElementById('btn-install');
+    const btnLater = document.getElementById('btn-later');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
+
+      // Check if user has already dismissed it in this session
+      if (!sessionStorage.getItem('installDismissed')) {
+        // Show the install banner
+        setTimeout(() => {
+          installBanner.classList.add('show');
+        }, 2000); // Wait 2 seconds before showing
+      }
+    });
+
+    btnInstall.addEventListener('click', (e) => {
+      // Hide the banner
+      installBanner.classList.remove('show');
+      // Show the prompt
+      deferredPrompt.prompt();
+      // Wait for the user to respond to the prompt
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      });
+    });
+
+    btnLater.addEventListener('click', () => {
+      installBanner.classList.remove('show');
+      sessionStorage.setItem('installDismissed', 'true');
+    });
+
+    window.addEventListener('appinstalled', (event) => {
+      console.log('App installed successfully');
+      installBanner.classList.remove('show');
+    });
   </script>
 </body>
 
