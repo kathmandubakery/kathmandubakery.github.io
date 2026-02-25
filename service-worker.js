@@ -8,7 +8,9 @@ const ASSETS_TO_CACHE = [
     './admin.html',
     './style.css',
     './manifest.json',
-    './kathmandu-bakery-logo.jpg'
+    './kathmandu-bakery-logo.jpg',
+    './icon-192.png',
+    './icon-512.png'
 ];
 
 // Install: cache core assets
