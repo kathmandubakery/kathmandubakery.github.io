@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin OS</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#B71C1C', // Bakery Red
+                            600: '#991B1B',
+                            700: '#7F1D1D',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #320f0f, #0f0505);
+            color: #f8fafc;
+            min-height: 100vh;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(20, 10, 10, 0.4);
+            border: 1px solid rgba(183, 28, 28, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 20px;
+        }
+
+        .glass-card:hover {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .glass-input {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .glass-input:focus {
+            border-color: #E53935;
+            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .stat-red {
+            background: linear-gradient(135deg, rgba(183, 28, 28, 0.2), rgba(229, 57, 53, 0.05));
+            border-color: rgba(229, 57, 53, 0.2);
+        }
+
+        .stat-green {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.2), rgba(74, 222, 128, 0.05));
+            border-color: rgba(74, 222, 128, 0.2);
+        }
+
+        .stat-blue {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(96, 165, 250, 0.05));
+            border-color: rgba(96, 165, 250, 0.2);
+        }
+
+        .stat-amber {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(251, 191, 36, 0.05));
+            border-color: rgba(251, 191, 36, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 4px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.2s;
+            position: relative;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: #E53935;
+        }
+
+        .nav-item.active svg {
+            filter: drop-shadow(0 0 8px rgba(229, 57, 53, 0.5));
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 24px;
+            height: 3px;
+            background: #E53935;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 6px;
+            right: calc(50% - 20px);
+            background: #E53935;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #0f172a;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #B71C1C, #E53935);
+            color: white;
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .list-item {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .list-item:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .role-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .pill-admin {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .pill-employee {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .pill-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal-box {
+            background: #0f172a;
+            width: 90%;
+            max-width: 440px;
+            border-radius: 28px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+        }
+
+        .toast-success {
+            background: rgba(22, 163, 74, 0.8);
+        }
+
+        .toast-error {
+            background: rgba(220, 38, 38, 0.8);
+            pointer-events: auto;
+        }
+
+        .toast-info {
+            background: rgba(51, 65, 85, 0.8);
+        }
+
+        /* DESKTOP LAYOUT (Responsive Sidebar) */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+                overflow: hidden;
+            }
+
+            .bottom-nav {
+                position: static;
+                width: 260px;
+                height: 100vh;
+                flex-direction: column;
+                justify-content: flex-start;
+                border-top: none;
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 32px 16px;
+                gap: 8px;
+                background: rgba(15, 23, 42, 0.95);
+            }
+
+            .nav-item {
+                flex: none;
+                flex-direction: row;
+                justify-content: flex-start;
+                padding: 14px 20px;
+                font-size: 14px;
+                border-radius: 16px;
+                width: 100%;
+                gap: 14px;
+            }
+
+            .nav-item.active {
+                background: rgba(229, 57, 53, 0.1);
+            }
+
+            .nav-item.active::after {
+                display: none;
+            }
+
+            .nav-badge {
+                top: 12px;
+                right: 20px;
+            }
+
+            .app-wrap {
+                flex: 1;
+                height: 100vh;
+                overflow-y: auto;
+                padding-bottom: 40px;
+            }
+
+            .desktop-logo {
+                display: flex !important;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 40px;
+                padding: 0 12px;
+            }
+
+            .page-header {
+                max-width: 1000px;
+                margin: 0 auto;
+            }
+        }
+
+        .desktop-logo {
+            display: none;
+        }
+
+        .app-wrap {
+            width: 100%;
+            padding-bottom: 100px;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- SIDEBAR / BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <div class="desktop-logo">
+            <div class="w-12 h-12 rounded-2xl overflow-hidden shadow-lg">
+                <img src="./kathmandu-bakery-logo-removebg-preview.png" class="w-full h-full object-contain" alt="Logo">
+            </div>
+            <div class="font-bold text-lg tracking-tight">Ktm Bakery</div>
+        </div>
+        <a class="nav-item active" id="nav-dashboard" onclick="switchNav(event,'tab-dashboard','nav-dashboard')">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" />
+            </svg>
+            <span class="md:block hidden">Dashboard</span>
+        </a>
+        <a class="nav-item" id="nav-employees" onclick="switchNav(event,'tab-employees','nav-employees')">
+            <svg viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <span class="md:block hidden">Staff</span>
+        </a>
+        <a class="nav-item" id="nav-approvals" onclick="switchNav(event,'tab-approvals','nav-approvals')">
+            <svg viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <line x1="20" y1="8" x2="20" y2="14" />
+                <line x1="23" y1="11" x2="17" y2="11" />
+            </svg>
+            <span class="md:block hidden">Approvals</span><span class="nav-badge hidden" id="pendingBadge">0</span>
+        </a>
+        <a class="nav-item" id="nav-attendance" onclick="switchNav(event,'tab-attendance','nav-attendance')">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span class="md:block hidden">Attendance</span>
+        </a>
+        <a class="nav-item" id="nav-settings" onclick="switchNav(event,'tab-settings','nav-settings')">
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+            </svg>
+            <span class="md:block hidden">Settings</span>
+        </a>
+    </nav>
+
+    <div class="app-wrap">
+        <!-- TOP HEADER -->
+        <div
+            class="glass sticky top-0 z-50 md:hidden px-5 py-4 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-red-900/20">
+                    <img src="./kathmandu-bakery-logo-removebg-preview.png" class="w-full h-full object-contain"
+                        alt="Logo">
+                </div>
+                <div>
+                    <div class="font-bold text-[15px] leading-tight">Ktm Bakery</div>
+                    <div class="text-slate-400 text-[11px]" id="headerDate">—</div>
+                </div>
+            </div>
+            <button id="btnLogoutMobile"
+                class="btn-ghost text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 border border-white/10"><svg
+                    viewBox="0 0 24 24" class="w-3.5 h-3.5">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg> Logout</button>
+        </div>
+
+        <div class="hidden md:flex justify-between items-center page-header px-8 pt-8 pb-2">
+            <div class="text-slate-400 font-medium" id="headerDateDesktop">—</div>
+            <button id="btnLogoutDesktop"
+                class="btn-ghost text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 border border-white/10"><svg
+                    viewBox="0 0 24 24" class="w-4 h-4">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg> Sign Out</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active page-header">
+            <div class="px-5 md:px-8 pt-6 pb-2">
+                <h1 class="text-white font-extrabold text-3xl tracking-tight">Overview</h1>
+                <p class="text-slate-400 text-sm mt-1">Today's snapshot</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 md:px-8 mt-4">
+                <div class="glass-card stat-red p-5">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 mb-4 border border-red-500/20">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <div class="text-white font-black text-4xl" id="statTotal">—</div>
+                    <div class="text-red-400/80 text-[10px] font-bold uppercase tracking-widest mt-1">Total Staff</div>
+                </div>
+                <div class="glass-card stat-green p-5">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 mb-4 border border-green-500/20">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <div class="text-white font-black text-4xl" id="statPresent">—</div>
+                    <div class="text-green-400/80 text-[10px] font-bold uppercase tracking-widest mt-1">Present</div>
+                </div>
+                <div class="glass-card stat-blue p-5">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 border border-blue-500/20">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                    </div>
+                    <div class="text-white font-black text-4xl" id="statAbsent">—</div>
+                    <div class="text-blue-400/80 text-[10px] font-bold uppercase tracking-widest mt-1">Absent</div>
+                </div>
+                <div class="glass-card stat-amber p-5">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 border border-amber-500/20">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="text-white font-black text-4xl" id="statLate">—</div>
+                    <div class="text-amber-400/80 text-[10px] font-bold uppercase tracking-widest mt-1">Late</div>
+                </div>
+            </div>
+
+            <!-- NEW DASHBOARD SECTIONS -->
+            <div class="px-5 md:px-8 mt-8 grid md:grid-cols-3 gap-6">
+                <!-- Turnout Health -->
+                <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+                    <div class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-4">Turnout Health
+                    </div>
+                    <div class="relative w-32 h-32 flex items-center justify-center">
+                        <svg class="w-full h-full -rotate-90">
+                            <circle cx="64" cy="64" r="58" fill="none" stroke="currentColor" stroke-width="8"
+                                class="text-white/5" />
+                            <circle id="healthCircle" cx="64" cy="64" r="58" fill="none" stroke="currentColor"
+                                stroke-width="8" class="text-green-500 transition-all duration-700"
+                                stroke-dasharray="364.4" stroke-dashoffset="364.4" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span class="text-white font-black text-3xl" id="healthPct">0%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs mt-4" id="healthMsg">Loading system health...</p>
+                </div>
+
+                <!-- Late Watchlist -->
+                <div class="glass-card p-6 md:col-span-2 overflow-hidden flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Late Watchlist</div>
+                    </div>
+                    <div id="lateWatchlist"
+                        class="flex flex-col gap-3 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div class="text-slate-500 text-xs py-4 text-center">No lateness reported today</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 md:px-8 mt-6">
+                <div class="glass-card p-6">
+                    <div class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-4">Recent Activity
+                        Feed</div>
+                    <div id="activityFeed" class="flex flex-col gap-4">
+                        <div class="text-slate-500 text-xs py-4 text-center">Waiting for updates...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMPLOYEES -->
+        <div id="tab-employees" class="tab-content page-header">
+            <div class="px-5 md:px-8 pt-6 pb-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-white font-extrabold text-3xl tracking-tight">Staff</h1>
+                    <p class="text-slate-400 text-sm mt-1">Manage accounts</p>
+                </div>
+                <button onclick="openModal('addEmpModal')"
+                    class="btn-primary text-sm font-bold px-4 md:px-5 py-2.5 md:py-3 rounded-xl flex items-center gap-2"><svg
+                        class="w-4 h-4" viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg> Add Staff</button>
+            </div>
+            <div id="empList" class="px-5 md:px-8 flex flex-col gap-3"></div>
+        </div>
+
+        <!-- APPROVALS -->
+        <div id="tab-approvals" class="tab-content page-header">
+            <div class="px-5 md:px-8 pt-6 pb-4">
+                <h1 class="text-white font-extrabold text-3xl tracking-tight">Approvals</h1>
+                <p class="text-slate-400 text-sm mt-1" id="pendingMsg">Review sign-up requests</p>
+            </div>
+            <div id="pendingList" class="px-5 md:px-8 flex flex-col gap-3"></div>
+        </div>
+
+        <!-- ATTENDANCE -->
+        <div id="tab-attendance" class="tab-content page-header">
+            <div class="px-5 md:px-8 pt-6 pb-4">
+                <h1 class="text-white font-extrabold text-3xl tracking-tight">Attendance</h1>
+                <p class="text-slate-400 text-sm mt-1">Reports & Records</p>
+            </div>
+            <div class="mx-5 md:mx-8 mb-6 flex bg-slate-800/50 p-1.5 rounded-xl border border-white/5">
+                <button
+                    class="att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-white bg-white/10 shadow-lg border border-white/10 transition"
+                    onclick="switchAttView('daily')" id="btnDaily">Daily</button>
+                <button
+                    class="att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-400 hover:text-white transition"
+                    onclick="switchAttView('monthly')" id="btnMonthly">Monthly</button>
+            </div>
+            <div id="viewDaily">
+                <div class="px-5 md:px-8 mb-5"><input type="date" id="attDate"
+                        class="glass-input w-full md:w-64 px-4 py-3 rounded-xl text-sm font-medium"></div>
+                <div id="attList" class="px-5 md:px-8 flex flex-col gap-3"></div>
+            </div>
+            <div id="viewMonthly" class="hidden">
+                <div class="px-5 md:px-8 mb-5"><input type="month" id="attMonth"
+                        class="glass-input w-full md:w-64 px-4 py-3 rounded-xl text-sm font-medium"></div>
+                <div id="monthList" class="px-5 md:px-8 flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="tab-settings" class="tab-content page-header">
+            <div class="px-5 md:px-8 pt-6 pb-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-white font-extrabold text-3xl tracking-tight">Settings</h1>
+                    <p class="text-slate-400 text-sm mt-1">System configuration</p>
+                </div>
+                <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
+                    <img src="./kathmandu-bakery-logo.jpg" class="w-full h-full object-cover" alt="Brand Logo">
+                </div>
+            </div>
+            <div class="px-5 md:px-8 grid md:grid-cols-2 gap-5">
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-brand-500/10 flex items-center justify-center text-brand-500 border border-brand-500/20">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                                <line x1="12" y1="20" x2="12.01" y2="20" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-lg">Network</div>
+                            <div class="text-slate-400 text-xs">Required for check-in</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <div><label
+                                class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">WiFi
+                                SSID</label><input type="text" id="setSsid"
+                                class="glass-input w-full px-4 py-3.5 rounded-xl text-sm font-medium"></div>
+                        <div><label
+                                class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Router
+                                IP</label><input type="text" id="setIp"
+                                class="glass-input w-full px-4 py-3.5 rounded-xl text-sm font-medium">
+                            <p class="text-[10px] text-slate-500 mt-2 px-1 italic line-clamp-2">Example: 192.168.1.1.
+                                This is the gateway IP of your bakery's WiFi router.</p>
+                        </div>
+                        <button onclick="saveWifi()"
+                            class="btn-primary py-3.5 rounded-xl text-sm font-bold mt-2 shadow-lg">Save Network</button>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-slate-700/50 flex items-center justify-center text-slate-300 border border-white/10">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-lg">Work Hours</div>
+                            <div class="text-slate-400 text-xs">Define thresholds</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-2">
+                        <div>
+                            <label
+                                class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Shift
+                                Start</label>
+                            <input type="time" id="setStart" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm"
+                                value="09:00">
+                            <p class="text-[9px] text-slate-500 mt-1 px-1">Baseline for work hours</p>
+                        </div>
+                        <div>
+                            <label
+                                class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Mark
+                                Late After</label>
+                            <input type="time" id="setLate" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm"
+                                value="09:15">
+                            <p class="text-[9px] text-slate-500 mt-1 px-1">Grace period end</p>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-brand-500/80 mb-4 px-1 italic">Note: Staff reporting after "Mark Late
+                        After" will be flagged. Lateness is calculated from "Shift Start".</p>
+                    <button onclick="saveTime()"
+                        class="btn-primary py-3.5 rounded-xl text-sm font-bold shadow-lg w-full">Save
+                        Hours</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="addEmpModal">
+        <div class="modal-box">
+            <button onclick="closeModal('addEmpModal')"
+                class="absolute top-5 right-5 text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-white/5 rounded-full"><svg
+                    viewBox="0 0 24 24" class="w-4 h-4">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            <div class="text-white font-extrabold text-2xl mb-6">Add Staff</div>
+            <form id="addEmpForm" class="flex flex-col gap-4">
+                <div><label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Full
+                        Name</label><input class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" type="text"
+                        id="newName" required></div>
+                <div><label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Email
+                        Address</label><input class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" type="email"
+                        id="newEmail" required></div>
+                <div><label
+                        class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Password</label><input
+                        class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" type="password" id="newPass" required>
+                </div>
+                <div><label
+                        class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Role</label><select
+                        class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" id="newRole">
+                        <option value="employee" class="text-slate-800">Employee</option>
+                        <option value="admin" class="text-slate-800">Admin</option>
+                    </select></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Shift
+                            Start</label>
+                        <input type="time" id="newStart" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm"
+                            value="09:00">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Late
+                            After</label>
+                        <input type="time" id="newLate" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm"
+                            value="09:15">
+                    </div>
+                </div>
+                <button type="submit" id="btnCreate" class="btn-primary font-bold text-sm py-3.5 rounded-xl mt-2">Create
+                    Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editEmpModal">
+        <div class="modal-box">
+            <button onclick="closeModal('editEmpModal')"
+                class="absolute top-5 right-5 text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-white/5 rounded-full"><svg
+                    viewBox="0 0 24 24" class="w-4 h-4">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            <div class="text-white font-extrabold text-2xl mb-6">Edit Staff</div>
+            <form id="editEmpForm" class="flex flex-col gap-4">
+                <input type="hidden" id="editEmpId">
+                <div><label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Full
+                        Name</label><input class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" type="text"
+                        id="editEmpName_val" required></div>
+                <div><label
+                        class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Role</label><select
+                        class="glass-input w-full px-4 py-3.5 rounded-xl text-sm" id="editEmpRole">
+                        <option value="employee" class="text-slate-800">Employee</option>
+                        <option value="admin" class="text-slate-800">Admin</option>
+                    </select></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Shift
+                            Start</label>
+                        <input type="time" id="editEmpStart" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Late
+                            After</label>
+                        <input type="time" id="editEmpLate" class="glass-input w-full px-4 py-3.5 rounded-xl text-sm">
+                    </div>
+                </div>
+                <button type="submit" id="btnUpdateEmp"
+                    class="btn-primary font-bold text-sm py-3.5 rounded-xl mt-2">Update Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editAttModal">
+        <div class="modal-box">
+            <button onclick="closeModal('editAttModal')"
+                class="absolute top-5 right-5 text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-white/5 rounded-full"><svg
+                    viewBox="0 0 24 24" class="w-4 h-4">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            <div class="text-white font-extrabold text-2xl mb-6">Edit Record</div>
+            <input type="hidden" id="editAttId">
+            <div class="flex flex-col gap-4">
+                <div><label class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Employee
+                        Name</label><input
+                        class="glass-input w-full px-4 py-3.5 rounded-xl text-sm opacity-50 cursor-not-allowed"
+                        type="text" id="editEmpName" disabled></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label
+                            class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Check-in
+                            Time</label><input class="glass-input w-full px-3 py-3.5 rounded-xl text-sm" type="time"
+                            id="editCheckin" step="1"></div>
+                    <div><label
+                            class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Check-out
+                            Time</label><input class="glass-input w-full px-3 py-3.5 rounded-xl text-sm" type="time"
+                            id="editCheckout" step="1"></div>
+                </div>
+                <button onclick="saveAttEdit()" class="btn-primary font-bold text-sm py-3.5 rounded-xl mt-2">Save
+                    Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+        firebase.initializeApp({ apiKey: "AIzaSyBlEuXmFO6ndj3k6YOlhce670uVUubWVLE", authDomain: "kathmandu-bakery.firebaseapp.com", projectId: "kathmandu-bakery" });
+        const auth = firebase.auth(), db = firebase.firestore(), todayStr = new Date().toISOString().split('T')[0]; var secondaryApp;
+
+        function showToast(m, t) { var c = document.getElementById('toast-container'), d = document.createElement('div'); d.className = 'toast toast-' + (t || 'info'); d.textContent = m; c.appendChild(d); setTimeout(() => { d.style.opacity = '0'; d.style.transform = 'translateY(10px)'; d.style.transition = 'all 0.4s'; setTimeout(() => d.remove(), 400); }, 2800); }
+        function switchNav(e, tId, nId) { e && e.preventDefault(); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById(nId).classList.add('active'); document.getElementById(tId).classList.add('active'); if (tId === 'tab-dashboard') loadDashboard(); if (tId === 'tab-employees') loadEmployees(); if (tId === 'tab-approvals') loadPending(); if (tId === 'tab-attendance') { document.getElementById('attDate').value = todayStr; loadAttendance(); } }
+        function switchTabById(t) { var m = { 'tab-dashboard': 'nav-dashboard', 'tab-employees': 'nav-employees', 'tab-approvals': 'nav-approvals', 'tab-attendance': 'nav-attendance' }; switchNav(null, t, m[t]); }
+        function openModal(id) { document.getElementById(id).classList.add('open'); } function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); }));
+        function escHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''; }
+        function handleIndexError(e, id) {
+            var msg = e.message || '', link = msg.match(/(https:\/\/console\.firebase\.google\.com[^\s]+)/), container = document.getElementById(id);
+            if (!container) return;
+            container.innerHTML = `<div class="bg-red-500/10 border border-red-500/30 p-5 rounded-2xl shadow-lg mt-4 w-full">
+                <div class="text-red-400 font-bold text-sm mb-2 flex items-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Firestore Index Required</div>
+                <div class="text-slate-400 text-[11px] mb-4">Firebase requires a composite index for this query. Click the button below to generate it.</div>
+                ${link ? `<a href="${link[0]}" target="_blank" class="block bg-red-500 hover:bg-red-600 text-white text-center py-2.5 rounded-xl font-bold text-xs transition-all shadow-lg shadow-red-900/40">Create Index Automatically &rarr;</a>` : '<div class="text-xs text-red-300 italic">Please check Firebase Console for index requirements.</div>'}
+            </div>`;
+        }
+
+        function loadDashboard() {
+            db.collection('users').where('role', '==', 'employee').get().then(s => {
+                var total = s.size; document.getElementById('statTotal').textContent = total;
+                var emps = {}; s.forEach(doc => emps[doc.id] = doc.data().name);
+
+                db.collection('attendance').where('date', '==', todayStr).get().then(a => {
+                    var present = a.size; document.getElementById('statPresent').textContent = present;
+                    document.getElementById('statAbsent').textContent = Math.max(0, total - present);
+
+                    db.collection('settings').doc('main').get().then(sdoc => {
+                        var lateThreshold = sdoc.exists ? (sdoc.data().lateTime || '09:15') : '09:15';
+                        var lateCount = 0; var lateList = []; var activity = [];
+
+                        a.forEach(d => {
+                            var data = d.data();
+                            var eInfo = s.docs.find(doc => doc.id === data.employeeId);
+                            var eData = eInfo ? eInfo.data() : {};
+                            var empThreshold = eData.lateAfter || lateThreshold;
+
+                            if (data.checkin > empThreshold + ':00') {
+                                lateCount++;
+                                var lateMinStr = data.lateMinutes ? ` (${data.lateMinutes}m)` : '';
+                                lateList.push({ name: emps[data.employeeId] || 'Unknown', time: data.checkin, lateMin: lateMinStr });
+                            }
+                            if (data.checkin) activity.push({ name: emps[data.employeeId] || 'Unknown', type: 'Check-in', time: data.checkin, ts: data.timestamp, lateMin: (data.checkin > empThreshold + ':00' && data.lateMinutes) ? ` (${data.lateMinutes}m)` : '' });
+                            if (data.checkout) activity.push({ name: emps[data.employeeId] || 'Unknown', type: 'Check-out', time: data.checkout, ts: data.timestamp });
+                        });
+
+                        document.getElementById('statLate').textContent = lateCount;
+
+                        // Turnout Health
+                        var pct = total > 0 ? Math.round((present / total) * 100) : 0;
+                        document.getElementById('healthPct').textContent = pct + '%';
+                        var circle = document.getElementById('healthCircle');
+                        var offset = 364.4 - (364.4 * pct) / 100;
+                        circle.style.strokeDashoffset = offset;
+                        document.getElementById('healthMsg').textContent = pct > 80 ? 'Excellent Turnout!' : pct > 50 ? 'Steady Operation' : 'Low Turnout Today';
+
+                        // Late Watchlist
+                        var lw = document.getElementById('lateWatchlist');
+                        if (lateList.length > 0) {
+                            lw.innerHTML = lateList.map(item => `<div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                                <div class="text-sm font-bold text-white">${escHtml(item.name)}</div>
+                                <div class="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20">${item.time.substring(0, 5)} LATE${item.lateMin}</div>
+                            </div>`).join('');
+                        } else {
+                            lw.innerHTML = '<div class="text-slate-500 text-xs py-4 text-center">No lateness reported today</div>';
+                        }
+
+                        // Recent Activity Feed
+                        var af = document.getElementById('activityFeed');
+                        activity.sort((a, b) => b.ts - a.ts);
+                        var top5 = activity.slice(0, 5);
+                        if (top5.length > 0) {
+                            af.innerHTML = top5.map(item => `<div class="flex items-center gap-4 relative">
+                                <div class="w-2 h-2 rounded-full ${item.type === 'Check-in' ? 'bg-green-500' : 'bg-blue-500'} shadow-lg shadow-${item.type === 'Check-in' ? 'green' : 'blue'}-900/50"></div>
+                                <div class="flex-1">
+                                    <div class="text-sm text-white font-medium"><span class="font-bold">${escHtml(item.name)}</span> ${item.type === 'Check-in' ? 'arrived' : 'left'} ${item.lateMin || ''}</div>
+                                    <div class="text-[10px] text-slate-500 mt-0.5">${item.time.substring(0, 5)}</div>
+                                </div>
+                            </div>`).join('');
+                        } else {
+                            af.innerHTML = '<div class="text-slate-500 text-xs py-4 text-center">No activity yet</div>';
+                        }
+                    });
+                });
+            }).catch(e => handleIndexError(e, 'tab-dashboard')); checkPendingBadge();
+        }
+
+        function checkPendingBadge() {
+            db.collection('users').where('role', '==', 'pending').get().then(s => {
+                var b = document.getElementById('pendingBadge'); document.getElementById('pendingMsg').textContent = s.size + ' requests waiting';
+                if (s.size > 0) { b.textContent = s.size; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
+            });
+        }
+
+        function loadEmployees() {
+            var l = document.getElementById('empList'); l.innerHTML = '<div class="text-slate-500 font-medium py-10 text-center">Loading...</div>';
+            db.collection('users').where('role', '==', 'employee').orderBy('name').get().then(s => {
+                if (s.empty) { l.innerHTML = '<div class="text-slate-500 py-10 text-center">No staff found</div>'; return; }
+                var h = ''; s.forEach(doc => {
+                    var d = doc.data(), r = d.role === 'admin' ? 'pill-admin' : d.role === 'pending' ? 'pill-pending' : 'pill-employee';
+                    var shift = (d.shiftStart || '09:00') + ' - ' + (d.lateAfter || '09:15');
+                    h += `<div class="list-item flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-700 font-bold text-white text-lg flex items-center justify-center shrink-0 border border-white/10">${(d.name || 'U').charAt(0).toUpperCase()}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-white font-bold text-sm truncate">${escHtml(d.name)}</div>
+                            <div class="text-slate-400 text-[10px] font-medium flex items-center gap-1.5 mb-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                ${shift}
+                            </div>
+                            <span class="role-pill ${r}">${escHtml(d.role).toUpperCase()}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openEditEmpModal('${doc.id}', '${escHtml(d.name)}', '${d.role}', '${d.shiftStart || '09:00'}', '${d.lateAfter || '09:15'}')" class="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                            <button onclick="deleteEmp('${doc.id}')" class="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                        </div>
+                    </div>`;
+                }); l.innerHTML = h;
+            }).catch(e => handleIndexError(e, 'empList'));
+        }
+        function deleteEmp(id) { if (confirm('Remove employee?')) db.collection('users').doc(id).delete().then(() => { showToast('Removed', 'success'); loadEmployees(); }); }
+
+        document.getElementById('addEmpForm').addEventListener('submit', e => {
+            e.preventDefault(); var btn = document.getElementById('btnCreate'), n = document.getElementById('newName').value, m = document.getElementById('newEmail').value, p = document.getElementById('newPass').value, r = document.getElementById('newRole').value, ss = document.getElementById('newStart').value, la = document.getElementById('newLate').value;
+            btn.disabled = true; if (!secondaryApp) try { secondaryApp = firebase.initializeApp(firebase.app().options, 'sec'); } catch (err) { secondaryApp = firebase.app('sec'); }
+            secondaryApp.auth().createUserWithEmailAndPassword(m, p).then(c => db.collection('users').doc(c.user.uid).set({ name: n, email: m, role: r, shiftStart: ss, lateAfter: la, createdAt: firebase.firestore.FieldValue.serverTimestamp() }))
+                .then(() => { closeModal('addEmpModal'); document.getElementById('addEmpForm').reset(); showToast('Created!', 'success'); loadEmployees(); })
+                .catch(err => showToast(err.message, 'error')).finally(() => btn.disabled = false);
+        });
+
+        function openEditEmpModal(id, n, r, ss, la) {
+            document.getElementById('editEmpId').value = id;
+            document.getElementById('editEmpName_val').value = n;
+            document.getElementById('editEmpRole').value = r;
+            document.getElementById('editEmpStart').value = ss;
+            document.getElementById('editEmpLate').value = la;
+            openModal('editEmpModal');
+        }
+
+        document.getElementById('editEmpForm').addEventListener('submit', e => {
+            e.preventDefault(); var btn = document.getElementById('btnUpdateEmp'), id = document.getElementById('editEmpId').value, n = document.getElementById('editEmpName_val').value, r = document.getElementById('editEmpRole').value, ss = document.getElementById('editEmpStart').value, la = document.getElementById('editEmpLate').value;
+            btn.disabled = true;
+            db.collection('users').doc(id).update({ name: n, role: r, shiftStart: ss, lateAfter: la })
+                .then(() => { closeModal('editEmpModal'); showToast('Updated!', 'success'); loadEmployees(); })
+                .catch(err => showToast(err.message, 'error')).finally(() => btn.disabled = false);
+        });
+
+        function loadPending() {
+            var l = document.getElementById('pendingList'); l.innerHTML = '<div class="text-slate-500 font-medium py-10 text-center">Loading...</div>';
+            db.collection('users').where('role', '==', 'pending').orderBy('createdAt', 'asc').get().then(s => {
+                if (s.empty) { l.innerHTML = '<div class="text-slate-500 py-10 text-center glass-card border-dashed">No pending requests</div>'; return; }
+                var h = ''; s.forEach(doc => {
+                    var d = doc.data();
+                    h += '<div class="list-item"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 rounded-xl bg-slate-700 font-bold text-white text-lg flex items-center justify-center border border-white/10">' + (d.name || 'U').charAt(0).toUpperCase() + '</div><div><div class="font-bold text-sm text-white">' + escHtml(d.name) + '</div><div class="text-xs text-slate-400 mt-0.5">' + escHtml(d.email) + '</div></div></div><div class="flex gap-3"><button onclick="approveUser(\'' + doc.id + '\')" class="flex-1 py-2.5 rounded-xl bg-green-500/20 text-green-400 border border-green-500/30 font-bold text-sm hover:bg-green-500 hover:text-white transition">Approve</button><button onclick="rejectUser(\'' + doc.id + '\')" class="flex-1 py-2.5 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 font-bold text-sm hover:bg-red-500 hover:text-white transition">Reject</button></div></div>';
+                }); l.innerHTML = h;
+            }).catch(e => handleIndexError(e, 'pendingList'));
+        }
+        function approveUser(id) { db.collection('users').doc(id).update({ role: 'employee' }).then(() => { showToast('Approved!', 'success'); loadPending(); checkPendingBadge(); }); }
+        function rejectUser(id) { if (confirm('Reject?')) db.collection('users').doc(id).delete().then(() => { showToast('Rejected', 'success'); loadPending(); checkPendingBadge(); }); }
+
+        function switchAttView(v) {
+            document.getElementById('btnDaily').className = v === 'daily' ? 'att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-white bg-white/10 shadow-lg border border-white/10 transition' : 'att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-400 hover:text-white transition';
+            document.getElementById('btnMonthly').className = v === 'monthly' ? 'att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-white bg-white/10 shadow-lg border border-white/10 transition' : 'att-tab flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-400 hover:text-white transition';
+            document.getElementById('viewDaily').classList.toggle('hidden', v !== 'daily'); document.getElementById('viewMonthly').classList.toggle('hidden', v !== 'monthly');
+            if (v === 'monthly') { if (!document.getElementById('attMonth').value) document.getElementById('attMonth').value = todayStr.substring(0, 7); loadMonthly(); } else { loadAttendance(); }
+        }
+
+        document.getElementById('attDate').addEventListener('change', loadAttendance);
+        function loadAttendance() {
+            var d = document.getElementById('attDate').value, l = document.getElementById('attList'); l.innerHTML = '<div class="text-slate-500 py-10 text-center font-medium">Loading...</div>';
+            db.collection('settings').doc('main').get().then(sdoc => {
+                var lateTime = sdoc.exists ? (sdoc.data().lateTime || '09:15') : '09:15';
+                db.collection('users').where('role', '==', 'employee').get().then(es => {
+                    var emps = {}; es.forEach(e => { var ed = e.data(); emps[e.id] = { name: ed.name, lateAfter: ed.lateAfter }; });
+                    db.collection('attendance').where('date', '==', d).get().then(as => {
+                        var atts = {}; as.forEach(a => atts[a.data().employeeId] = { id: a.id, data: a.data() });
+                        var h = '', ek = Object.keys(emps).sort((a, b) => emps[a].name.localeCompare(emps[b].name));
+                        ek.forEach(eid => {
+                            var e = emps[eid], r = atts[eid];
+                            if (r) {
+                                var data = r.data, hrs = '--'; if (data.checkin && data.checkout) { var mins = Math.floor((new Date(d + 'T' + data.checkout) - new Date(d + 'T' + data.checkin)) / 60000); hrs = Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm'; }
+                                var empThreshold = e.lateAfter || lateTime;
+                                var lateInfo = data.lateMinutes ? ` (${data.lateMinutes}m)` : '';
+                                var bg = (data.checkin > empThreshold + ':00') ? `<span class="role-pill pill-pending">LATE${lateInfo}</span>` : '<span class="role-pill pill-employee text-green-400 border-green-400/30 bg-green-400/10">ON TIME</span>';
+                                if (data.checkin && !data.checkout) bg = `<span class="role-pill pill-employee">WORKING</span>`;
+                                h += '<div class="list-item flex items-center justify-between"><div><div class="font-bold text-sm text-white flex items-center gap-2 mb-1.5">' + escHtml(e.name) + bg + '</div><div class="text-xs text-slate-400 font-mono"><svg class="inline w-3 h-3 mr-1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + (data.checkin ? data.checkin.substring(0, 5) : '--:--') + ' &rarr; ' + (data.checkout ? data.checkout.substring(0, 5) : '--:--') + '</div></div><div class="text-right"><div class="text-brand-500 font-bold text-sm mb-1">' + hrs + '</div><button onclick="openEditAtt(\'' + r.id + '\',\'' + escHtml(e.name) + '\',\'' + (data.checkin || '') + '\',\'' + (data.checkout || '') + '\')" class="text-[10px] text-slate-400 hover:text-white font-bold uppercase tracking-wider transition border border-slate-600 rounded px-2 py-1">Edit</button></div></div>';
+                            } else {
+                                h += '<div class="list-item bg-slate-800/20 border-dashed"><div class="font-bold text-sm text-slate-400 flex items-center gap-2 mb-1.5">' + escHtml(e.name) + '<span class="role-pill pill-admin border-red-500/20">ABSENT</span></div><div class="text-xs text-slate-500">No shift recorded</div></div>';
+                            }
+                        });
+                        l.innerHTML = h || '<div class="text-slate-500 text-center py-10">No staff found</div>';
+                    });
+                });
+            });
+        }
+
+        document.getElementById('attMonth').addEventListener('change', loadMonthly);
+        function loadMonthly() {
+            var m = document.getElementById('attMonth').value, l = document.getElementById('monthList'); if (!m) return;
+            l.innerHTML = '<div class="text-slate-500 font-medium py-10 text-center col-span-full">Generating report...</div>';
+            db.collection('settings').doc('main').get().then(sdoc => {
+                var lateTime = sdoc.exists ? (sdoc.data().lateTime || '09:15') : '09:15';
+                db.collection('users').where('role', '==', 'employee').get().then(es => {
+                    var emps = {}; es.forEach(e => emps[e.id] = { name: e.data().name, p: 0, l: 0, t: 0 });
+                    var sD = m + '-01', eD = m + '-31';
+                    db.collection('attendance').where('date', '>=', sD).where('date', '<=', eD).get().then(as => {
+                        as.forEach(a => {
+                            var d = a.data(), e = d.employeeId;
+                            if (emps[e]) {
+                                emps[e].p++;
+                                var empThreshold = es.docs.find(doc => doc.id === e).data().lateAfter || lateTime;
+                                if (d.checkin && d.checkin > empThreshold + ':00') emps[e].l++;
+                                if (d.checkin && d.checkout) emps[e].t += (new Date(d.date + 'T' + d.checkout) - new Date(d.date + 'T' + d.checkin));
+                            }
+                        });
+                        var h = '', ek = Object.keys(emps).sort((a, b) => emps[a].name.localeCompare(emps[b].name));
+                        ek.forEach(eid => {
+                            var e = emps[eid], hrs = Math.floor(e.t / 3600000), mins = Math.floor((e.t % 3600000) / 60000);
+                            h += '<div class="glass-card p-5"><div class="font-bold text-base text-white mb-4">' + escHtml(e.name) + '</div><div class="grid grid-cols-3 gap-3"><div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center"><div class="text-green-400 font-bold text-xl">' + e.p + '</div><div class="text-green-500/50 text-[9px] font-bold uppercase tracking-widest mt-1">Days</div></div><div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-center"><div class="text-amber-400 font-bold text-xl">' + e.l + '</div><div class="text-amber-500/50 text-[9px] font-bold uppercase tracking-widest mt-1">Late</div></div><div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center flex flex-col justify-center"><div class="text-blue-400 font-bold text-sm whitespace-nowrap">' + hrs + 'h ' + mins + 'm</div><div class="text-blue-500/50 text-[9px] font-bold uppercase tracking-widest mt-1">Total</div></div></div></div>';
+                        });
+                        l.innerHTML = h || '<div class="text-slate-500 py-10 text-center col-span-full">No records found</div>';
+                    });
+                });
+            });
+        }
+
+        function openEditAtt(id, n, ci, co) { document.getElementById('editAttId').value = id; document.getElementById('editEmpName').value = n; document.getElementById('editCheckin').value = ci.substring(0, 5); document.getElementById('editCheckout').value = co.substring(0, 5); openModal('editAttModal'); }
+        function saveAttEdit() { var id = document.getElementById('editAttId').value, ci = document.getElementById('editCheckin').value + ':00', co = document.getElementById('editCheckout').value + ':00'; db.collection('attendance').doc(id).update({ checkin: ci, checkout: co }).then(() => { showToast('Saved!', 'success'); closeModal('editAttModal'); loadAttendance(); }); }
+
+        function loadSettings() {
+            db.collection('settings').doc('main').get().then(doc => {
+                if (!doc.exists) return; var d = doc.data();
+                if (d.wifiSSID) document.getElementById('setSsid').value = d.wifiSSID; if (d.routerIP) document.getElementById('setIp').value = d.routerIP;
+                if (d.startTime) document.getElementById('setStart').value = d.startTime; if (d.lateTime) document.getElementById('setLate').value = d.lateTime;
+            });
+        }
+        function saveWifi() { db.collection('settings').doc('main').set({ wifiSSID: document.getElementById('setSsid').value, routerIP: document.getElementById('setIp').value }, { merge: true }).then(() => showToast('Network Saved!', 'success')); }
+        function saveTime() { db.collection('settings').doc('main').set({ startTime: document.getElementById('setStart').value, lateTime: document.getElementById('setLate').value }, { merge: true }).then(() => showToast('Hours Saved!', 'success')); }
+
+        function handleLogout() { auth.signOut().then(() => window.location.href = 'login.html'); }
+        document.getElementById('btnLogoutMobile').addEventListener('click', handleLogout);
+        document.getElementById('btnLogoutDesktop').addEventListener('click', handleLogout);
+
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = 'login.html';
+            else if (localStorage.getItem('userRole') !== 'admin') window.location.href = 'employee.html';
+            else {
+                var dt = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                document.getElementById('headerDate').textContent = dt; document.getElementById('headerDateDesktop').textContent = dt;
+                document.getElementById('attDate').value = todayStr;
+                loadDashboard(); loadSettings();
+            }
+        });
+    </script>
+</body>
+
+</html>

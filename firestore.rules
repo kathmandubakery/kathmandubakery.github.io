@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ────────────────────────────────────────────────────
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isLoggedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isOwner(uid) {
+      return isLoggedIn() && request.auth.uid == uid;
+    }
+
+    // ─── Users ──────────────────────────────────────────────────────
+    // New Google users can CREATE their own doc (sets role: pending)
+    // Employees can READ their own doc
+    // Admins can read/update/delete all user docs
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      // Allow self-create (for new Google sign-in users creating pending doc)
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Attendance ─────────────────────────────────────────────────
+    // Employees create/update/read only their own records
+    // Admins can do everything
+    match /attendance/{recordId} {
+      allow read: if isLoggedIn() &&
+        (resource.data.employeeId == request.auth.uid || isAdmin());
+      allow create: if isLoggedIn() &&
+        request.resource.data.employeeId == request.auth.uid;
+      allow update: if isLoggedIn() &&
+        (resource.data.employeeId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── Settings ───────────────────────────────────────────────────
+    // All logged-in users can read (needed for Router IP)
+    // Only admins can write
+    match /settings/{settingId} {
+      allow read: if isLoggedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

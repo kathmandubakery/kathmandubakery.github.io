@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance - Kathmandu Bakery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#B71C1C">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        :root {
+            --primary: #B71C1C;
+            --accent: #DC2626;
+            --glass: rgba(20, 10, 10, 0.45);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-brand {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #250808, #050202) !important;
+            color: #f8fafc;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        #app-container {
+            background: transparent !important;
+            box-shadow: none !important;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 20px 20px;
+        }
+
+        .greeting-name {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff !important;
+            font-family: 'Outfit', sans-serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .greeting-date {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        /* WiFi Status Card */
+        .wifi-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 0 16px 20px;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .wifi-card.connected {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.2), rgba(20, 10, 10, 0.4));
+            border-color: rgba(74, 222, 128, 0.2);
+        }
+
+        .wifi-card.disconnected {
+            background: linear-gradient(135deg, rgba(183, 28, 28, 0.2), rgba(20, 10, 10, 0.4));
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .wifi-card.checking {
+            background: linear-gradient(135deg, rgba(230, 81, 0, 0.2), rgba(20, 10, 10, 0.4));
+            border-color: rgba(245, 124, 0, 0.2);
+        }
+
+        .wifi-label {
+            font-size: 11px;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .wifi-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 2px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .wifi-icon {
+            font-size: 28px;
+        }
+
+        /* Action Buttons */
+        .btn-checkin {
+            background: linear-gradient(135deg, #B71C1C, #991B1B);
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px -5px rgba(183, 28, 28, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-checkout {
+            background: linear-gradient(135deg, #424242, #212121);
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            filter: grayscale(1);
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            height: 70px;
+            background: rgba(15, 10, 10, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 10px;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            flex: 1;
+            height: 100%;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: white;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-item.active svg {
+            transform: translateY(-4px);
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+        }
+
+        /* History Items */
+        .history-item {
+            background: var(--glass);
+            border: 1px solid rgba(183, 28, 28, 0.1);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .history-date {
+            font-weight: 700;
+            font-size: 15px;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .history-time {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        .history-hours {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Profile */
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--primary), #991B1B);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            box-shadow: 0 15px 35px rgba(183, 28, 28, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-name {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .profile-email {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .role-badge {
+            display: block;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 30px;
+            padding: 6px 18px;
+            border-radius: 12px;
+            background: rgba(183, 28, 28, 0.15);
+            color: #FF5252;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 1px solid rgba(183, 28, 28, 0.2);
+        }
+
+        .badge {
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            padding: 4px 12px;
+        }
+
+        .badge-present {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 9999;
+            pointer-events: none;
+            width: 90%;
+            max-width: 360px;
+        }
+
+        .toast {
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            text-align: center;
+            animation: toastIn 0.3s ease forwards;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast-success {
+            background: #2E7D32;
+        }
+
+        .toast-error {
+            background: #B71C1C;
+        }
+
+        .toast-info {
+            background: #1565C0;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal — MUST be hidden by default */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            /* hidden until openModal() is called */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a0f0f;
+            width: 90%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 28px;
+            position: relative;
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#B71C1C',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="app-container">
+
+        <!-- TOP HEADER -->
+        <div class="header-bar">
+            <div>
+                <div class="greeting-name" id="greetingName">Hey, User</div>
+                <div class="greeting-date" id="greetingDate">—</div>
+            </div>
+            <div class="relative group">
+                <img src="./kathmandu-bakery-logo-removebg-preview.png" alt="Logo"
+                    class="w-12 h-auto object-contain transition-transform group-hover:scale-110"
+                    onerror="this.style.display='none'">
+            </div>
+        </div>
+
+        <!-- HOME TAB -->
+        <div id="tab-home" class="tab-content active">
+
+            <!-- WiFi Status -->
+            <div class="wifi-card checking" id="wifiCard">
+                <div>
+                    <div class="wifi-label text-slate-400">Network Status</div>
+                    <div class="wifi-value font-brand" id="wifiText">Verifying...</div>
+                </div>
+                <div class="wifi-icon" id="wifiIcon">
+                    <svg class="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 gap-4 px-4 mb-8">
+                <button
+                    class="btn btn-checkin h-14 rounded-2xl flex items-center justify-center gap-3 font-bold text-lg ripple"
+                    id="btnCheckIn" disabled>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    CHECK IN
+                </button>
+                <button
+                    class="btn btn-checkout h-14 rounded-2xl flex items-center justify-center gap-3 font-bold text-lg ripple"
+                    id="btnCheckOut" disabled>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    CHECK OUT
+                </button>
+            </div>
+
+            <!-- Today's Card -->
+            <div class="glass-card mx-4 p-6">
+                <h3 class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-6">Today's Snapshot</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Check-in</div>
+                        <div class="text-xl font-bold text-white font-brand" id="todayIn">— : —</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Check-out</div>
+                        <div class="text-xl font-bold text-white font-brand" id="todayOut">— : —</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Total Hours</div>
+                        <div class="text-xl font-bold text-brand-500 font-brand" id="todayHours">0h 0m</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Current Status</div>
+                        <div id="todayStatusWrapper"><span class="badge badge-pending px-3 py-1"
+                                id="todayStatus">Pending</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="tab-history" class="tab-content">
+            <div class="px-5 pt-8 pb-4">
+                <h2 class="text-white font-extrabold text-2xl tracking-tight mb-4">Attendance History</h2>
+
+                <!-- Lateness Summary -->
+                <div class="glass-card mb-6 p-4 flex items-center justify-between border-amber-500/20 bg-amber-500/5">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Monthly Lateness
+                            </div>
+                            <div class="text-white font-bold" id="lateSummary">Calculating...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="historyList" class="flex flex-col gap-3">
+                    <p class="text-slate-500 text-center py-10">Loading your history...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="tab-profile" class="tab-content">
+            <div class="p-8">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="profile-avatar overflow-hidden" id="profileInitial">
+                        <img src="./kathmandu-bakery-logo.jpg" class="w-full h-full object-cover" id="profileLogo">
+                    </div>
+                    <div class="profile-name" id="profileName">User</div>
+                    <div class="profile-email" id="profileEmail">—</div>
+                    <span class="role-badge">Employee</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <button
+                        class="btn h-14 rounded-2xl bg-white/5 border border-white/10 text-white font-bold flex items-center justify-center gap-3 ripple"
+                        onclick="showChangePasswordModal()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        Security Settings
+                    </button>
+                    <button
+                        class="btn h-14 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-500 font-bold flex items-center justify-center gap-3 ripple"
+                        id="btnLogout">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout Session
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <a class="nav-item active" data-tab="tab-home" onclick="switchTab(event, 'tab-home')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" data-tab="tab-history" onclick="switchTab(event, 'tab-history')">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+                </svg>
+                <span>History</span>
+            </a>
+            <a class="nav-item" data-tab="tab-profile" onclick="switchTab(event, 'tab-profile')">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="changePwModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('changePwModal')">&#x2715;</button>
+            <h2 style="margin-bottom:20px;">Change Password</h2>
+            <div class="input-group">
+                <label class="input-label">New Password</label>
+                <input class="input-field" type="password" id="newPwField" placeholder="Min 6 characters">
+            </div>
+            <button class="btn btn-primary ripple" onclick="doChangePassword()">Update Password</button>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+        // ─── Firebase Init ────────────────────────────────────────────────
+        firebase.initializeApp({
+            apiKey: "AIzaSyBlEuXmFO6ndj3k6YOlhce670uVUubWVLE",
+            authDomain: "kathmandu-bakery.firebaseapp.com",
+            projectId: "kathmandu-bakery",
+            storageBucket: "kathmandu-bakery.firebasestorage.app",
+            messagingSenderId: "299196855137",
+            appId: "1:299196855137:web:9322a5cef7b05a681d8b20"
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ─── State ───────────────────────────────────────────────────────
+        let currentUser = null;
+        let todayRecordId = null;
+        let wifiOk = false;
+        let routerIP = '192.168.1.1';
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dateOpts = { weekday: 'long', month: 'long', day: 'numeric' };
+
+        // ─── Toast ───────────────────────────────────────────────────────
+        function showToast(msg, type) {
+            type = type || 'info';
+            var c = document.getElementById('toast-container');
+            var t = document.createElement('div');
+            t.className = 'toast toast-' + type;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(function () { t.style.opacity = '0'; t.style.transition = 'opacity 0.4s'; setTimeout(function () { t.remove(); }, 400); }, 2800);
+        }
+
+        // ─── Tab Navigation ──────────────────────────────────────────────
+        function switchTab(e, id) {
+            e.preventDefault();
+            document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function (t) { t.classList.remove('active'); });
+            e.currentTarget.classList.add('active');
+            document.getElementById(id).classList.add('active');
+            if (id === 'tab-history') loadHistory();
+        }
+
+        // ─── Modal Helpers ───────────────────────────────────────────────
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function showChangePasswordModal() { document.getElementById('newPwField').value = ''; openModal('changePwModal'); }
+        function doChangePassword() {
+            var p = document.getElementById('newPwField').value;
+            if (p.length < 6) { showToast('Password must be at least 6 chars', 'error'); return; }
+            currentUser.updatePassword(p).then(function () { showToast('Password updated!', 'success'); closeModal('changePwModal'); }).catch(function (err) { showToast(err.message, 'error'); });
+        }
+
+        // ─── WiFi Check ──────────────────────────────────────────────────
+        function checkWifi() {
+            var card = document.getElementById('wifiCard');
+            var text = document.getElementById('wifiText');
+            var icon = document.getElementById('wifiIcon');
+
+            if (!routerIP) {
+                console.warn("WiFi Detection: No router IP configured.");
+                card.className = 'wifi-card checking';
+                text.textContent = 'Setup Required';
+                icon.innerHTML = '<svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                wifiOk = false;
+                updateButtonStates();
+                return;
+            }
+
+            card.className = 'wifi-card checking';
+            text.textContent = 'Verifying Network...';
+            icon.innerHTML = '<svg class="w-8 h-8 animate-pulse text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>';
+
+            console.log("WiFi Detection: Starting verification on " + routerIP);
+
+            // Attempt 1: Fetch
+            var controller = new AbortController();
+            var timeout = setTimeout(function () { controller.abort(); }, 4000);
+
+            fetch('http://' + routerIP, { mode: 'no-cors', cache: 'no-store', signal: controller.signal })
+                .then(function () {
+                    clearTimeout(timeout);
+                    onWifiSuccess();
+                })
+                .catch(function (err) {
+                    clearTimeout(timeout);
+                    console.log("WiFi Detection: Fetch failed, trying Image-ping fallback...");
+                    // Attempt 2: Image Ping Fallback (often bypasses fetch restrictions)
+                    var img = new Image();
+                    var imgTimeout = setTimeout(function () {
+                        img.onload = img.onerror = null;
+                        onWifiFailure("Timeout reaching " + routerIP);
+                    }, 4000);
+
+                    img.onload = function () {
+                        clearTimeout(imgTimeout);
+                        onWifiSuccess();
+                    };
+                    img.onerror = function () {
+                        clearTimeout(imgTimeout);
+                        // Even an error from the router (like 404) means we reached it
+                        onWifiSuccess();
+                    };
+                    img.src = 'http://' + routerIP + '/favicon.ico?v=' + Date.now();
+                });
+
+            function onWifiSuccess() {
+                console.log("WiFi Detection: SUCCESS");
+                wifiOk = true;
+                card.className = 'wifi-card connected';
+                text.textContent = 'Bakery Network';
+                icon.innerHTML = '<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                showToast('Network Verified', 'success');
+                updateButtonStates();
+            }
+
+            function onWifiFailure(reason) {
+                console.error("WiFi Detection: FAILURE - " + reason);
+                wifiOk = false;
+                card.className = 'wifi-card disconnected';
+                text.textContent = 'Not on Bakery WiFi';
+                icon.innerHTML = '<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                showToast('Please join Bakery WiFi. (IP: ' + routerIP + ')', 'error');
+                updateButtonStates();
+            }
+        }
+
+        function updateButtonStates() {
+            var btnIn = document.getElementById('btnCheckIn');
+            var btnOut = document.getElementById('btnCheckOut');
+            if (!todayRecordId) {
+                btnIn.disabled = !wifiOk;
+                btnOut.disabled = true;
+            } else {
+                btnIn.disabled = true;
+                var noCheckout = document.getElementById('todayOut').textContent === '— : —';
+                btnOut.disabled = !wifiOk || !noCheckout;
+            }
+        }
+
+        // ─── Today's Record ──────────────────────────────────────────────
+        function loadTodayRecord() {
+            db.collection('attendance')
+                .where('employeeId', '==', currentUser.uid)
+                .where('date', '==', todayStr)
+                .get()
+                .then(function (snap) {
+                    if (!snap.empty) {
+                        var rec = snap.docs[0];
+                        todayRecordId = rec.id;
+                        renderTodayData(rec.data());
+                    }
+                    updateButtonStates();
+                })
+                .catch(function (e) { console.error(e); updateButtonStates(); });
+        }
+
+        function renderTodayData(d) {
+            document.getElementById('todayIn').textContent = d.checkin || '— : —';
+            document.getElementById('todayOut').textContent = d.checkout || '— : —';
+            var st = document.getElementById('todayStatus');
+            var isLate = d.status === 'Late';
+            st.textContent = isLate ? 'Late (' + (d.lateMinutes || 0) + 'm)' : (d.status || 'Present');
+            st.className = 'badge badge-' + (isLate ? 'pending' : 'present').toLowerCase();
+            if (d.checkin && d.checkout) {
+                var ci = new Date(todayStr + 'T' + d.checkin);
+                var co = new Date(todayStr + 'T' + d.checkout);
+                var mins = Math.floor((co - ci) / 60000);
+                document.getElementById('todayHours').textContent = Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
+            }
+        }
+
+        // ─── Check In / Out ──────────────────────────────────────────────
+        document.getElementById('btnCheckIn').addEventListener('click', function () {
+            if (!wifiOk) { showToast('Connect to Bakery WiFi first!', 'error'); return; }
+            var now = new Date();
+            var h = now.getHours();
+            var m = now.getMinutes();
+            var s = now.getSeconds();
+            var timeStr = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+            var displayTime = timeStr;
+
+            document.getElementById('btnCheckIn').disabled = true;
+            document.getElementById('btnCheckIn').innerHTML = '<div class="spinner mr-2"></div> CHECKING IN...';
+
+            // Lateness calculation
+            db.collection('users').doc(currentUser.uid).get().then(function (userDoc) {
+                var uData = userDoc.exists ? userDoc.data() : {};
+
+                return db.collection('settings').doc('main').get().then(function (settingsDoc) {
+                    var sData = settingsDoc.exists ? settingsDoc.data() : {};
+
+                    var lateAfter = uData.lateAfter || sData.lateTime || "09:15";
+                    var startTime = uData.shiftStart || sData.startTime || "09:00";
+
+                    var isLate = false;
+                    var lateMinutes = 0;
+
+                    var checkInTimeVal = h * 60 + m;
+                    var lateAfterParts = lateAfter.split(':');
+                    var lateAfterVal = parseInt(lateAfterParts[0]) * 60 + parseInt(lateAfterParts[1]);
+
+                    if (checkInTimeVal > lateAfterVal) {
+                        isLate = true;
+                        var startTimeParts = startTime.split(':');
+                        var startTimeVal = parseInt(startTimeParts[0]) * 60 + parseInt(startTimeParts[1]);
+                        lateMinutes = checkInTimeVal - startTimeVal;
+                    }
+
+                    return db.collection('attendance').add({
+                        employeeId: currentUser.uid,
+                        employeeName: localStorage.getItem('userName') || 'Employee',
+                        date: todayStr,
+                        checkin: displayTime,
+                        checkout: '',
+                        status: isLate ? 'Late' : 'Present',
+                        lateMinutes: lateMinutes,
+                        wifiVerified: true,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(function (ref) {
+                        todayRecordId = ref.id;
+                        document.getElementById('todayIn').textContent = displayTime;
+                        document.getElementById('todayStatus').textContent = isLate ? 'Late (' + lateMinutes + 'm)' : 'Present';
+                        document.getElementById('todayStatus').className = 'badge badge-' + (isLate ? 'pending' : 'present');
+                        document.getElementById('btnCheckIn').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg> CHECK IN';
+                        showToast('Checked In! ' + (isLate ? 'Late by ' + lateMinutes + 'm' : 'on time'), isLate ? 'error' : 'success');
+                        updateButtonStates();
+                    });
+                });
+            }).catch(function (e) {
+                console.error("Check-in Error:", e);
+                showToast('Check-in failed: ' + e.message, 'error');
+                document.getElementById('btnCheckIn').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg> CHECK IN';
+                document.getElementById('btnCheckIn').disabled = !wifiOk;
+            });
+        });
+
+        document.getElementById('btnCheckOut').addEventListener('click', function () {
+            if (!wifiOk || !todayRecordId) return;
+            var now = new Date();
+            var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ':' + now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('btnCheckOut').disabled = true;
+            document.getElementById('btnCheckOut').textContent = 'Checking out...';
+
+            db.collection('attendance').doc(todayRecordId).update({ checkout: timeStr })
+                .then(function () {
+                    document.getElementById('todayOut').textContent = timeStr;
+                    document.getElementById('btnCheckOut').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg> CHECK OUT';
+                    showToast('Checked Out at ' + timeStr, 'success');
+                    loadTodayRecord();
+                })
+                .catch(function (e) {
+                    console.error(e);
+                    showToast('Check-out failed: ' + e.message, 'error');
+                    document.getElementById('btnCheckOut').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg> CHECK OUT';
+                    document.getElementById('btnCheckOut').disabled = false;
+                });
+        });
+
+        // ─── History ─────────────────────────────────────────────────────
+        // ─── History ─────────────────────────────────────────────────────
+        function loadHistory() {
+            var list = document.getElementById('historyList');
+            list.innerHTML = '<p class="text-slate-500 text-center py-10">Loading history records...</p>';
+            db.collection('attendance')
+                .where('employeeId', '==', currentUser.uid)
+                .limit(40)
+                .get()
+                .then(function (snap) {
+                    if (snap.empty) { list.innerHTML = '<p class="text-slate-500 text-center py-10">No records found yet.</p>'; return; }
+                    var records = [];
+                    snap.forEach(function (doc) {
+                        var data = doc.data();
+                        data.id = doc.id;
+                        records.push(data);
+                    });
+
+                    // Client-side sort to avoid index errors
+                    records.sort(function (a, b) {
+                        return b.date.localeCompare(a.date);
+                    });
+
+                    var html = '';
+                    var lateCount = 0;
+                    var currentMonthStr = new Date().toISOString().substring(0, 7); // "YYYY-MM"
+
+                    records.forEach(function (d) {
+                        if (d.status === 'Late' && d.date.startsWith(currentMonthStr)) lateCount++;
+                        var hrs = '0h 0m';
+                        if (d.checkin && d.checkout) {
+                            var ci = new Date(d.date + 'T' + d.checkin);
+                            var co = new Date(d.date + 'T' + d.checkout);
+                            var m = Math.floor((co - ci) / 60000);
+                            hrs = Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+                        }
+
+                        // Professional Date Formatting
+                        var dateObj = new Date(d.date);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+                        var dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+
+                        html += `<div class="history-item">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[10px] font-black text-brand-500 border border-white/5 uppercase">${dayName}</div>
+                                <div>
+                                    <div class="history-date">${formattedDate}</div>
+                                    <div class="history-time font-medium text-slate-500">${(d.checkin || '--:--').substring(0, 5)} → ${(d.checkout || '--:--').substring(0, 5)}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="history-hours">${hrs}</div>
+                                <div class="text-[9px] font-bold ${d.status === 'Late' ? 'text-amber-500' : 'text-slate-500'} uppercase tracking-wider">${d.status === 'Late' ? 'Late ' + (d.lateMinutes || 0) + 'm' : 'Worked'}</div>
+                            </div>
+                        </div>`;
+                    });
+                    list.innerHTML = html;
+                    document.getElementById('lateSummary').textContent = lateCount + (lateCount === 1 ? ' day late' : ' days late') + ' this month';
+                })
+                .catch(function (e) {
+                    list.innerHTML = '<p class="text-red-500/50 text-center py-10">System error while loading.</p>';
+                    document.getElementById('lateSummary').textContent = 'Error';
+                    console.error(e);
+                });
+        }
+
+        // ─── Auth Gate ───────────────────────────────────────────────────
+        // Logout is bound ONCE outside onAuthStateChanged to prevent duplicate listeners
+        document.getElementById('btnLogout').addEventListener('click', function () {
+            firebase.auth().signOut().then(function () { window.location.href = 'login.html'; });
+        });
+        // Click outside modal to close
+        document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(overlay.id); });
+        });
+
+        auth.onAuthStateChanged(function (user) {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            var name = localStorage.getItem('userName') || user.email.split('@')[0];
+            document.getElementById('greetingName').textContent = 'Hey, ' + name.split(' ')[0];
+            document.getElementById('greetingDate').textContent = new Date().toLocaleDateString('en-US', dateOpts);
+            document.getElementById('profileInitial').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = user.email;
+
+            db.collection('settings').doc('main').get().then(function (doc) {
+                if (doc.exists && doc.data().routerIP) routerIP = doc.data().routerIP;
+                checkWifi();
+            }).catch(function () { checkWifi(); });
+
+            loadTodayRecord();
+        });
+    </script>
+</body>
+
+</html>

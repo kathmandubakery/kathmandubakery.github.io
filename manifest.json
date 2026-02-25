@@ -1,0 +1,21 @@
+{
+  "name": "Bakery Attendance",
+  "short_name": "Attendance",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#B71C1C",
+  "description": "Employee Attendance System for Kathmandu Bakery",
+  "icons": [
+    {
+      "src": "./kathmandu-bakery-logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "./kathmandu-bakery-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

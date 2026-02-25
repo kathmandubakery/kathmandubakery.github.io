@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bakery Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#B71C1C">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .splash-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .splash-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      object-fit: cover;
+    }
+
+    .splash-title {
+      color: var(--primary-color);
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .splash-subtitle {
+      color: var(--text-light);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .loader-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      margin: 0 4px;
+      animation: dotBounce 1.2s infinite ease-in-out;
+    }
+
+    .loader-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loader-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes dotBounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0.7);
+        opacity: 0.5;
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app-container" class="page-fade-in">
+    <div class="splash-screen">
+      <img src="./kathmandu-bakery-logo.jpg" alt="Logo" class="splash-logo" onerror="this.style.display='none'">
+      <h2 class="splash-title">Kathmandu Bakery</h2>
+      <p class="splash-subtitle">Employee Attendance System</p>
+      <div>
+        <span class="loader-dot"></span>
+        <span class="loader-dot"></span>
+        <span class="loader-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase CDN (Compat - works without a server) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlEuXmFO6ndj3k6YOlhce670uVUubWVLE",
+      authDomain: "kathmandu-bakery.firebaseapp.com",
+      projectId: "kathmandu-bakery",
+      storageBucket: "kathmandu-bakery.firebasestorage.app",
+      messagingSenderId: "299196855137",
+      appId: "1:299196855137:web:9322a5cef7b05a681d8b20"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(async function (user) {
+      if (user) {
+        try {
+          const doc = await db.collection('users').doc(user.uid).get();
+          const role = doc.exists ? doc.data().role : 'employee';
+          localStorage.setItem('userRole', role);
+          localStorage.setItem('userName', doc.exists ? doc.data().name : 'User');
+          if (role === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'employee.html';
+          }
+        } catch (e) {
+          const cached = localStorage.getItem('userRole') || 'employee';
+          window.location.href = cached === 'admin' ? 'admin.html' : 'employee.html';
+        }
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').catch(function () { });
+    }
+  </script>
+</body>
+
+</html>
